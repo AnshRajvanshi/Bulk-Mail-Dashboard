@@ -31,6 +31,13 @@ st.set_page_config(
 )
 
 inject_css()
+
+# ── Password gate ──────────────────────────────────────────────────────────
+password = st.text_input("Enter password to access the dashboard", type="password")
+if password != "Bulkmail@Ansh":
+    st.warning("Enter the correct password to continue.")
+    st.stop()
+# ──────────────────────────────────────────────────────────────────────────
 settings = load_settings()
 ROOT = Path(__file__).resolve().parent
 manual_path = str(ROOT / "docs" / "PROJECT_MANUAL.md")
