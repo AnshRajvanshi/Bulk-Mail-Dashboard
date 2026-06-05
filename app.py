@@ -33,9 +33,18 @@ st.set_page_config(
 inject_css()
 
 # ── Password gate ──────────────────────────────────────────────────────────
-password = st.text_input("Enter password to access the dashboard", type="password")
-if password != "Bulkmail@Ansh":
-    st.warning("Enter the correct password to continue.")
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.title("🔐 Bulk Mail Dashboard")
+    password = st.text_input("Enter password to continue", type="password")
+    if st.button("Login"):
+        if password == st.secrets.get("APP_PASSWORD", ""):
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect password. Please try again.")
     st.stop()
 # ──────────────────────────────────────────────────────────────────────────
 settings = load_settings()
