@@ -64,9 +64,12 @@ def parse_csv(file_bytes: bytes) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
         name, email = row["name"], row["email"]
         reason = None
 
+        name = str(name).strip() if name is not None else ""
+        email = str(email).strip() if email is not None else ""
+
         if not name or name.lower() == "nan":
             reason = "Missing name"
-        elif not email or email == "nan":
+        elif not email or email.lower() == "nan":
             reason = "Missing email"
         elif not _valid_email(email):
             reason = "Invalid email format"
