@@ -74,28 +74,13 @@ uploaded = st.file_uploader(
     type=["csv"],
     help="Accepted headers: name, email, full_name, e-mail, etc.",
 )
-# Attach file
-section_title("📎 Attach Resume (optional)", "PDF attached to every email")
-uploaded_resume = st.file_uploader(
-    "Upload your resume PDF",
-    type=["pdf"],
-    help="Will be attached to every outgoing email.",
-    key="resume_uploader",
-)
-
-if uploaded_resume is not None:
-    st.session_state.resume_bytes = uploaded_resume.read()
-    st.session_state.resume_filename = uploaded_resume.name
-    st.success(f"Resume attached: **{uploaded_resume.name}**")
-elif "resume_bytes" not in st.session_state:
-    st.session_state.resume_bytes = None
-    st.session_state.resume_filename = None
 
 if uploaded is not None:
     file_id = uploaded.name + str(uploaded.size)
     if st.session_state.get("last_upload_id") != file_id:
         try:
-            valid, skipped, stats = parse_csv(uploaded.getvalue())
+            file_bytes = uploaded.read()
+            valid, skipped, stats = parse_csv(file_bytes)
             st.session_state.recipients = valid
             st.session_state.skipped = skipped
             st.session_state.upload_stats = stats
@@ -107,6 +92,26 @@ if uploaded is not None:
             )
         except ValueError as exc:
             st.error(str(exc))
+
+# Attach file
+section_title("📎 Attach Resume (optional)", "PDF attached to every email")
+uploaded_resume = st.file_uploader(
+    "Upload your resume PDF",
+    type=["pdf"],
+    help="Will be attached to every outgoing email.",
+    key="resume_uploader",
+)
+
+if uploaded_resume is not None:
+    resume_id = uploaded_resume.name + str(uploaded_resume.size)
+    if st.session_state.get("last_resume_id") != resume_id:
+        st.session_state.resume_bytes = uploaded_resume.read()
+        st.session_state.resume_filename = uploaded_resume.name
+        st.session_state.last_resume_id = resume_id
+    st.success(f"Resume attached: **{uploaded_resume.name}**")
+elif "resume_bytes" not in st.session_state:
+    st.session_state.resume_bytes = None
+    st.session_state.resume_filename = None
 
 recipients: pd.DataFrame | None = st.session_state.recipients
 
