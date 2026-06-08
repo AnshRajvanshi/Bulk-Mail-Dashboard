@@ -92,18 +92,21 @@ elif "resume_bytes" not in st.session_state:
     st.session_state.resume_filename = None
 
 if uploaded is not None:
-    try:
-        valid, skipped, stats = parse_csv(uploaded.getvalue())
-        st.session_state.recipients = valid
-        st.session_state.skipped = skipped
-        st.session_state.upload_stats = stats
-        st.session_state.send_complete = False   # ← reset on new upload
-        st.success(
-            f"Loaded **{stats['valid']}** valid recipients "
-            f"({stats['skipped']} skipped)."
-        )
-    except ValueError as exc:
-        st.error(str(exc))
+    file_id = uploaded.name + str(uploaded.size)
+    if st.session_state.get("last_upload_id") != file_id:
+        try:
+            valid, skipped, stats = parse_csv(uploaded.getvalue())
+            st.session_state.recipients = valid
+            st.session_state.skipped = skipped
+            st.session_state.upload_stats = stats
+            st.session_state.send_complete = False
+            st.session_state.last_upload_id = file_id
+            st.success(
+                f"Loaded **{stats['valid']}** valid recipients "
+                f"({stats['skipped']} skipped)."
+            )
+        except ValueError as exc:
+            st.error(str(exc))
 
 recipients: pd.DataFrame | None = st.session_state.recipients
 
